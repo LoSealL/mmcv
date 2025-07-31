@@ -1,14 +1,21 @@
 [build-system]
-requires = ["setuptools>=42", "wheel>=0.45.0", "ninja", "cmake", "psutil"]
+requires = [
+    "setuptools>=42",
+    "wheel>=0.45.0",
+    "ninja",
+    "cmake",
+    "psutil",
+    "torch",
+    "mmengine",
+    "vswhere",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mmcv"
 description = "OpenMMLab Computer Vision Foundation"
 requires-python = ">=3.9"
-authors = [
-    { name = "MMCV Contributors", email = "openmmlab@gmail.com" },
-]
+authors = [{ name = "MMCV Contributors", email = "openmmlab@gmail.com" }]
 classifiers = [
     'Development Status :: 4 - Beta',
     'License :: OSI Approved :: Apache Software License',
