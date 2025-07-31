@@ -1,7 +1,13 @@
 import glob
+import locale
 import os
 import platform
 import re
+import shutil
+import subprocess as sp
+import warnings
+from contextlib import suppress
+from pathlib import Path
 from pkg_resources import DistributionNotFound, get_distribution, parse_version
 from setuptools import find_packages, setup
 
@@ -140,11 +146,52 @@ except ImportError:
         install_requires.append(choose_requirement(main, secondary))
 
 
+def prepare_compiler_sdk_windows() -> bool:
+    """Prepare MSVC environment for building C++ extensions on Windows."""
+    import vswhere  # pylint: disable=import-outside-toplevel
+
+    def setupvars(msvc_dir: Path):
+        # For now only x64 abi is considered
+        cl = next(msvc_dir.rglob('Hostx64/x64/cl.exe'))
+        vcvarsall = msvc_dir / 'VC/Auxiliary/Build/vcvarsall.bat'
+        ret = sp.run(
+            f'"{vcvarsall}" x64 > NUL && set',
+            check=True,
+            shell=True,
+            stdout=sp.PIPE,
+        )
+        for entry in ret.stdout.decode(locale.getpreferredencoding()).splitlines():
+            key, value = entry.split('=', 1)
+            os.environ[key] = value.strip()
+        os.environ['CXX'] = f'{cl}'
+
+    # check if CXX environment variable is set
+    if 'CXX' in os.environ and Path(os.environ['CXX']).exists():
+        return True
+    # check if cl is in PATH
+    if cl_path := shutil.which('cl.exe'):
+        return Path(cl_path).exists()
+    # Try finding MSVC installation using pyvswhere
+    with suppress(Exception):
+        msvc_install_dir = vswhere.get_latest_path()
+        if msvc_install_dir is None or not Path(msvc_install_dir).exists():
+            return False
+        setupvars(Path(msvc_install_dir))
+        return True
+    return False
+
+
 def get_extensions():
     extensions = []
 
     if os.getenv('MMCV_WITH_OPS', '1') == '0':
         return extensions
+    if os.name == 'nt':
+        if prepare_compiler_sdk_windows():
+            os.environ['DISTUTILS_USE_SDK'] = '1'
+        else:
+            warnings.warn('MSVC prompt is not activated, mmcv.ops will not build.')
+            return extensions
 
     if EXT_TYPE == 'parrots':
         ext_name = 'mmcv._ext'
