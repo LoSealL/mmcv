@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=42", "wheel>=0.45.0", "ninja", "cmake", "psutil"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mmcv"
+description = "OpenMMLab Computer Vision Foundation"
+requires-python = ">=3.9"
+authors = [
+    { name = "MMCV Contributors", email = "openmmlab@gmail.com" },
+]
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+]
+dynamic = ["version"]
+readme = "README.md"
+dependencies = [
+    "addict",
+    "mmengine>=0.3.0",
+    "numpy",
+    "packaging",
+    "Pillow",
+    "pyyaml",
+    "regex;sys_platform=='win32'",
+    "yapf",
+    "torch",
+    "torchvision",
+]
+
+[project.urls]
+Home = "https://github.com/loseall/mmcv"
+Docs = "https://mmcv.readthedocs.io/en/latest/"
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchaudio = { index = "pytorch" }
+torchvision = { index = "pytorch" }
+pytorch-sphinx-theme = { git = "https://github.com/open-mmlab/pytorch_sphinx_theme.git" }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[dependency-groups]
+docs = [
+    "docutils==0.16.0",
+    "markdown>=3.4.0",
+    "myst-parser>=0.18.1",
+    "opencv-python>=4.11.0.86",
+    "pytorch-sphinx-theme",
+    "sphinx==4.0.2",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-markdown-tables>=0.0.16",
+    "urllib3<2.0.0",
+]
+tests = [
+    "coverage",
+    "lmdb",
+    "onnx",
+    "onnxoptimizer",
+    "onnxruntime",
+    "pytest",
+    "pyturbojpeg",
+    "scipy",
+    "tifffile",
+]

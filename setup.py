@@ -42,9 +42,11 @@ def choose_requirement(primary, secondary):
 
 def get_version():
     version_file = 'mmcv/version.py'
+    local_vars = {}
     with open(version_file, encoding='utf-8') as f:
-        exec(compile(f.read(), version_file, 'exec'))
-    return locals()['__version__']
+        # pylint: disable=exec-used
+        exec(compile(f.read(), version_file, 'exec'), None, local_vars)
+    return local_vars.get('__version__', '0.0.0.unknown')
 
 
 def parse_requirements(fname='requirements/runtime.txt', with_version=True):
@@ -492,10 +494,11 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Topic :: Utilities',
     ],
     url='https://github.com/open-mmlab/mmcv',
