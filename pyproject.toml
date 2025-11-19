@@ -53,7 +53,7 @@ pytorch-sphinx-theme = { git = "https://github.com/open-mmlab/pytorch_sphinx_the
 
 [[tool.uv.index]]
 name = "pytorch"
-url = "https://download.pytorch.org/whl/cu126"
+url = "https://download.pytorch.org/whl/cu129"
 explicit = true
 
 [dependency-groups]
