@@ -160,10 +160,20 @@ def prepare_compiler_sdk_windows() -> bool:
             shell=True,
             stdout=sp.PIPE,
         )
-        for entry in ret.stdout.decode(locale.getpreferredencoding()).splitlines():
-            key, value = entry.split('=', 1)
-            os.environ[key] = value.strip()
-        os.environ['CXX'] = f'{cl}'
+        codec = [locale.getlocale()[1], 'utf-8']
+        for encoding in codec:
+            if encoding is None:
+                continue
+            with suppress(Exception):
+                content = ret.stdout.decode(encoding)
+                for entry in content.splitlines():
+                    key, value = entry.split('=', 1)
+                    os.environ[key] = value.strip()
+                os.environ['CXX'] = f'{cl}'
+                return
+        raise OSError(
+            f'Cannot decode output of vcvarsall.bat, tried codec: {codec}'
+        )
 
     # check if CXX environment variable is set
     if 'CXX' in os.environ and Path(os.environ['CXX']).exists():
@@ -190,7 +200,9 @@ def get_extensions():
         if prepare_compiler_sdk_windows():
             os.environ['DISTUTILS_USE_SDK'] = '1'
         else:
-            warnings.warn('MSVC prompt is not activated, mmcv.ops will not build.')
+            warnings.warn(
+                'MSVC prompt is not activated, mmcv.ops will not build.'
+            )
             return extensions
 
     if EXT_TYPE == 'parrots':
